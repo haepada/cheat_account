@@ -11,8 +11,8 @@
             let accountNumber = document.getElementById("accountNumber").value;
             const name = document.getElementById("name").value;
 
-    // 사기 계좌 목록에 포함 여부 확인 (하이픈과 공백을 제거하여 비교)
-        accountNumber = accountNumber.replace(/[-\s]/g, "");
+            // 하이픈과 공백 제거하여 숫자만 남기기
+            accountNumber = accountNumber.replace(/[-\s]/g, "");
 
 
             // 적금 계좌 사기 기준 (업데이트된 데이터)
@@ -137,8 +137,8 @@
                 "70437902213439", "3520652326773", "2835604237865", "110552418100", "94580200946018", "05998777789", "64522601189168", "65522601188989", "65522601189197", "65522601189027", "65522601189030", "65522601189043", "65522601189072", "65522601189155", "65522601189209", "65522601189212", "65522601189254", "3560838012053", "18813896701010",  "1121028536093", "100143787485", "94450200833546", "100041136235","1121029919139","13112516902019","98200388201012","100041136235","18813896701010","1121029919139","13112516902019","98200388201012","3561224998133","3561432128513","3521831431103","3521919745133","3021433723201","6917210016968","228120369089","9002199847057","56213612902231","1002062353811","1002260932263","1002164563401","1002665055630","3333212383517","3333139343580","7777028130246","3333276905144","3333182811335","3333288945894","7777030969234"
             ];
 
-        // 사기 계좌 목록에 포함 여부 확인 (하이픈을 제거하여 비교)
-        let isFraudAccount = knownFraudAccounts.some(acc => acc.replace(/-/g, "") === accountNumber);
+        // 사기 계좌 목록에 포함 여부 확인 (하이픈과 공백을 제거하여 비교)
+        let isFraudAccount = knownFraudAccounts.some(acc => acc.replace(/[-\s]/g, "") === accountNumber);
 
         // 결과 메시지와 색상 처리
         const resultContainer = document.getElementById("result");
@@ -148,20 +148,23 @@
         let resultMessages = [];
         let resultColors = [];
 
-        // 사기 계좌인지 확인
-        if (isFraudAccount) {
-            resultMessages.push("⚠️ 이 계좌는 사기계좌로 제보된 적이 있는 계좌입니다. 주의하세요.");
-            resultColors.push("text-red-500");
-            document.getElementById("linkButtons").style.display = "none";
-        } else if (isSavingsAccount) {
-            resultMessages.push("⚠️ 이 계좌는 적금계좌로 사기계좌 위험이 있습니다. 주의하세요.");
-            resultColors.push("text-red-500");
-            document.getElementById("linkButtons").style.display = "none";
-        } else {
-            resultMessages.push("✅ 이 계좌는 안전할 확률이 높습니다. 사기계좌 판별기는 제보된 결과를 기반으로 정보를 제공하며 결과에 책임을 지지 않습니다.");
-            resultColors.push("text-green-500");
-            document.getElementById("linkButtons").style.display = "block";
-        }
+// 사기 계좌인지 확인
+if (isFraudAccount) {
+    resultMessages.push("⚠️ 이 계좌는 사기계좌로 제보된 적이 있는 계좌입니다. 주의하세요.");
+    resultColors.push("text-red-500");
+} else if (isSavingsAccount) {
+    resultMessages.push("⚠️ 이 계좌는 적금계좌로 사기계좌 위험이 있습니다. 주의하세요.");
+    resultColors.push("text-red-500");
+} else {
+    resultMessages.push("✅ 이 계좌는 안전할 확률이 높습니다. 사기계좌 판별기는 제보된 결과를 기반으로 정보를 제공하며 결과에 책임을 지지 않습니다.");
+    resultColors.push("text-green-500");
+
+  // 토스 안내 추가 문구
+            resultMessages.push("💸 토스는 안심계좌 보상제를 운영하고 있어요. 혹시 모르니 토스를 이용해 보는건 어떨까요? (공짜홍보🔊) ");
+            resultColors.push("text-gray-600");
+
+}
+
 
         // 이름이 동일할 경우 추가 경고 표시
         const knownFraudNames = [
@@ -172,16 +175,21 @@
             resultColors.push("text-red-500");
         }
 
-        // 결과 메시지 출력 (중복되지 않도록)
-        resultContainer.innerHTML = resultMessages.map((msg, index) => {
-            return `<p class="${resultColors[index]}">${msg}</p>`;
-        }).join("");
+      // 결과 메시지 출력
+        resultMessages.forEach((message, index) => {
+            const messageElement = document.createElement('p');
+            messageElement.className = `mt-2 ${resultColors[index]}`;
+            messageElement.textContent = message;
+            resultContainer.appendChild(messageElement);
+        });
     }
+
     </script>
 </head>
 <body class="bg-gray-100">
     <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
         <h1 class="text-3xl font-bold mb-4 text-center">사기 계좌 판별기</h1>
+        <br>
         <label class="block mb-2" for="name">이름 입력:</label>
         <input type="text" id="name" class="w-full p-2 border rounded mb-4" placeholder="이름을 입력하세요">
         
@@ -220,11 +228,6 @@
 
         <div id="result" class="mt-4"></div>
         
-        <div id="linkButtons" style="display: none;" class="mt-4">
-            <a href="https://toss.im/transfer" target="_blank" class="block w-full text-center bg-blue-500 text-white p-2 rounded mb-2">토스로 입금하기</a>
-            <a href="https://www.kakaobank.com/" target="_blank" class="block w-full text-center bg-yellow-500 text-white p-2 rounded mb-2">카카오뱅크로 입금하기</a>
-            <a href="https://nid.naver.com/naverpay/home" target="_blank" class="block w-full text-center bg-green-500 text-white p-2 rounded mb-2">네이버페이로 입금하기</a>
-        </div>
     </div>
     <div class="text-sm text-gray-500 mt-4 text-center">
         <p>💥본 판별기는 <b>2024년 10월 12일</b> 기준 티켓팅,돌판 위주💥</p>
